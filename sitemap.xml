@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<<<<<<< HEAD
   <url>
     <loc>http://maksadbek.github.io/blog/2015/11/26/how-to-setup-django-media-upload/</loc>
     <lastmod>2015-11-26T14:18:15+05:00</lastmod>
@@ -10,4 +11,33 @@
   <url>
     <loc>http://maksadbek.github.io/</loc>
   </url>
+=======
+  
+  
+  <url>
+    <loc>http://Maksadbek.github.io/blog/2014/09/24/first-test-post/</loc>
+    
+    <lastmod>2014-09-24T14:35:57+05:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  
+  <url>
+    <loc>http://Maksadbek.github.io/blog/archives/</loc>
+    <lastmod>2014-09-24T14:37:58+05:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>http://Maksadbek.github.io/</loc>
+    <lastmod>2014-09-24T14:37:58+05:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  
+  
+>>>>>>> c19e3ac5617f90bc2e580c34d4914bdae0f57945
 </urlset>
