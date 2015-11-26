@@ -1,43 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-<<<<<<< HEAD
   <title><![CDATA[Maksadbek Akxmedov]]></title>
   <link href="http://maksadbek.github.io/atom.xml" rel="self"/>
   <link href="http://maksadbek.github.io/"/>
-  <updated>2015-11-26T17:38:58+05:00</updated>
+  <updated>2015-11-26T18:29:22+05:00</updated>
   <id>http://maksadbek.github.io/</id>
   <author>
     <name><![CDATA[Maksadbek]]></name>
     <email><![CDATA[a.maksadbek@gmail.com]]></email>
-=======
-  <title><![CDATA[My Octopress Blog]]></title>
-  <link href="http://Maksadbek.github.io/atom.xml" rel="self"/>
-  <link href="http://Maksadbek.github.io/"/>
-  <updated>2014-09-24T14:37:58+05:00</updated>
-  <id>http://Maksadbek.github.io/</id>
-  <author>
-    <name><![CDATA[Your Name]]></name>
-    
->>>>>>> c19e3ac5617f90bc2e580c34d4914bdae0f57945
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
   
   <entry>
-<<<<<<< HEAD
     <title type="html"><![CDATA[How to Setup Django Media Upload]]></title>
     <link href="http://maksadbek.github.io/blog/2015/11/26/how-to-setup-django-media-upload/"/>
     <updated>2015-11-26T14:18:15+05:00</updated>
     <id>http://maksadbek.github.io/blog/2015/11/26/how-to-setup-django-media-upload</id>
     <content type="html"><![CDATA[<h1>First things are first</h1>
-=======
-    <title type="html"><![CDATA[First Test Post]]></title>
-    <link href="http://Maksadbek.github.io/blog/2014/09/24/first-test-post/"/>
-    <updated>2014-09-24T14:35:57+05:00</updated>
-    <id>http://Maksadbek.github.io/blog/2014/09/24/first-test-post</id>
-    <content type="html"><![CDATA[
->>>>>>> c19e3ac5617f90bc2e580c34d4914bdae0f57945
 ]]></content>
   </entry>
   

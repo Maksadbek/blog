@@ -1,8 +1,4 @@
 User-agent: *
 Disallow: 
 
-<<<<<<< HEAD
 Sitemap: http://maksadbek.github.io/sitemap.xml 
-=======
-Sitemap: http://Maksadbek.github.io/sitemap.xml 
->>>>>>> c19e3ac5617f90bc2e580c34d4914bdae0f57945
