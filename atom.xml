@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Maksadbek Akxmedov]]></title>
+  <link href="http://maksadbek.github.io/atom.xml" rel="self"/>
+  <link href="http://maksadbek.github.io/"/>
+  <updated>2015-11-26T17:38:58+05:00</updated>
+  <id>http://maksadbek.github.io/</id>
+  <author>
+    <name><![CDATA[Maksadbek]]></name>
+    <email><![CDATA[a.maksadbek@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How to Setup Django Media Upload]]></title>
+    <link href="http://maksadbek.github.io/blog/2015/11/26/how-to-setup-django-media-upload/"/>
+    <updated>2015-11-26T14:18:15+05:00</updated>
+    <id>http://maksadbek.github.io/blog/2015/11/26/how-to-setup-django-media-upload</id>
+    <content type="html"><![CDATA[<h1>First things are first</h1>
+]]></content>
+  </entry>
+  
+</feed>
