@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2017-12-25T01:12:05+03:00</updated><id>http://localhost:4000/</id><title type="html">Maksadbek’s blog</title><subtitle>Here I write my thoughts about programming and Go language.</subtitle><entry><title type="html">Golang mutex internals</title><link href="http://localhost:4000/golang/2017/11/26/golang-mutex-internals.html" rel="alternate" type="text/html" title="Golang mutex internals" /><published>2017-11-26T18:46:40+03:00</published><updated>2017-11-26T18:46:40+03:00</updated><id>http://localhost:4000/golang/2017/11/26/golang-mutex-internals</id><content type="html" xml:base="http://localhost:4000/golang/2017/11/26/golang-mutex-internals.html">&lt;h1 id=&quot;mutexes-in-go&quot;&gt;Mutexes in Go&lt;/h1&gt;
+
+&lt;h2 id=&quot;intro&quot;&gt;Intro&lt;/h2&gt;
+&lt;p&gt;Mutexes are used to protect memory area from mutation by multiple goroutines at the same time.
+Memory protection is done to avoid side-effects in the program. In other case this can bring to
+unknown behaviour in runtime and Go memory model does not guarantee correct work if you are corrupting the memory.
+But there is a very handy tool in Golang toolbox that helps to detect data races in Go code. It helps
+to find data races while running tests and while running the programming. This is done by 
+setting &lt;code class=&quot;highlighter-rouge&quot;&gt;-race&lt;/code&gt; flag on running tests and compiling. More about this: https://golang.org/doc/articles/race_detector.html&lt;/p&gt;
+
+&lt;p&gt;Golang has two types of mutexes &lt;code class=&quot;highlighter-rouge&quot;&gt;Mutex&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;RWmutex&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;sync&lt;/code&gt; package. The difference will be explained.
+This blog post covers types of mutexes in and detailed information about their implemenatation.&lt;/p&gt;
+
+&lt;h2 id=&quot;mutex-and-rwmutex&quot;&gt;Mutex and RWMutex&lt;/h2&gt;
+&lt;p&gt;The sync package has two types of mutexes: Mutex and RWMutex.&lt;/p&gt;
+
+&lt;p&gt;The sync.Mutex structure implements sync.Locker interface and has two methods: Lock() and Unlock()
+Lock() - locks the memory and if other goroutine tries to call Lock() method, this action will be blocked
+until the Unlock() method will not be called and makes the lock available for other goroutines. You must hold the
+lock while you’re mutating memory. For example some value of map. Here is a code snippet that shows why it is needed:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-Golang&quot;&gt;var m = map[string]int{}
+
+func mutate(key string, val int) {
+    m[k] = v
+
+    return
+}
+
+func state(key string) (int, bool) {
+    val, ok := [key]
+    return val, ok
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Let’s suppose that we have dozens of goroutines that try to call mutate and state functions concurrently.
+And there can be a moment when one goroutine gets state and another one mutates the map at the same time.
+In this case, there can be a data race and bring to the undefined behaviour and corrupt the memory.
+To avoid this we must do these operations atomically or consequently. There we start protecting memory with mutex.
+Code changes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Golang&quot;&gt;var m = map[string]int{}
++ var lock = new(sync.Mutex)
+
+func mutate(key string, val int) {
+    l.Lock()
+    m[k] = v
+    l.Unlock()
+
+    return
+}
+
+func state(key string) (int, bool) {
+    l.Lock()
+    val, ok := m[key]
+    l.Unlock()
+
+    return val, ok
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This fixes the code, and there are no data races anymore. But, why we must lock the memory if we want just read data from it.
+Multiple goroutines can read data from map concurrently and this will not bring to data race and we are not obligated to do
+this process atomically.&lt;/p&gt;
+
+&lt;p&gt;That is why we have RWMutex! We can read data concurrently and lock the memoy when there are mutations.&lt;/p&gt;
+&lt;h2 id=&quot;mutex-internals&quot;&gt;Mutex internals&lt;/h2&gt;
+
+&lt;h2 id=&quot;rwmutex-internals&quot;&gt;RWMutex internals&lt;/h2&gt;
+
+&lt;h2 id=&quot;references&quot;&gt;References&lt;/h2&gt;</content><author><name></name></author><summary type="html">Mutexes in Go</summary></entry></feed>

@@ -4,78 +4,75 @@ title:  "Golang mutex internals"
 date:   2017-11-26 20:46:40 +0500
 categories: golang
 ---
+# Mutexes in Go
+
 ## Intro
+Mutexes are used to protect memory area from mutation by multiple goroutines at the same time.
+Memory protection is done to avoid side-effects in the program. In other case this can bring to
+unknown behaviour in runtime and Go memory model does not guarantee correct work if you are corrupting the memory.
+But there is a very handy tool in Golang toolbox that helps to detect data races in Go code. It helps
+to find data races while running tests and while running the programming. This is done by 
+setting `-race` flag on running tests and compiling. More about this: https://golang.org/doc/articles/race_detector.html
 
-## The difference between Mutex and RWmutex in Golang
+Golang has two types of mutexes `Mutex` and `RWmutex` in `sync` package. The difference will be explained.
+This blog post covers types of mutexes in and detailed information about their implemenatation.
 
-### Intro
-Usually we use mutual expressions in Go to protect memory area from mutation by multiple goroutines in the same time.
-Golang include two types of mutexes in `sync` package: `sync.Mutex` and `sync.RWmutex`
-The difference is explained below
+## Mutex and RWMutex
+The sync package has two types of mutexes: Mutex and RWMutex.
 
-### Mutex use cases
-Lets take an example of simple struct that include a `map` that keeps count of visitor by country.
+The sync.Mutex structure implements sync.Locker interface and has two methods: Lock() and Unlock()
+Lock() - locks the memory and if other goroutine tries to call Lock() method, this action will be blocked
+until the Unlock() method will not be called and makes the lock available for other goroutines. You must hold the
+lock while you're mutating memory. For example some value of map. Here is a code snippet that shows why it is needed:
 ```Golang
-m := map[sting]int
-```
-And we have multiple HTTP handlers that increments this counters.
+var m = map[string]int{}
 
-```
-func Increment(r http.Request, w *http.ResponseWriter) {
-  r.FormParse()
-  country := r.Form.Get("country")
-  m[country]++
+func mutate(key string, val int) {
+    m[k] = v
+
+    return
 }
-```
-As each handlers runs on separate goroutine, all of them try to increment the map at the same time.
-In this case to protect the memory from this, we must use mutexes, this requires to create a struct and keep map within it:
-We are embedding `sync.Mutex` in our struct.
-```
-type Counter struct {
-  Visitors map[string]int
-  sync.Mutex
-}
-```
-And slightly change our handler and Counter struct:
-We firstly create a instance
-```
-  // Add increment methods
-  func (c Counter) Inc(countryName string) {
-     // lock the `c`, other goroutines are not able to mutate it while it is locked,
-     // they have to wait until it is unlocked
-    c.Lock()
-    c.Visitors[countryName]++
-    c.Unlock()
-  }
-  c := Counter{}
-```
-We use `Inc` method in handlers
-```
-func Increment(r http.Request, w *http.ResponseWriter) {
-  r.FormParse()
-  country := r.Form.Get("country")
-  c.Inc(country)
+
+func state(key string) (int, bool) {
+    val, ok := [key]
+    return val, ok
 }
 ```
 
-**Note**
-If you're keeping a struct in the map:
-```
-type County struct {
-  Visitors int 
+Let's suppose that we have dozens of goroutines that try to call mutate and state functions concurrently.
+And there can be a moment when one goroutine gets state and another one mutates the map at the same time.
+In this case, there can be a data race and bring to the undefined behaviour and corrupt the memory.
+To avoid this we must do these operations atomically or consequently. There we start protecting memory with mutex.
+Code changes:
+
+```Golang
+var m = map[string]int{}
++ var lock = new(sync.Mutex)
+
+func mutate(key string, val int) {
+    l.Lock()
+    m[k] = v
+    l.Unlock()
+
+    return
 }
-m := map[string]Country{}
+
+func state(key string) (int, bool) {
+    l.Lock()
+    val, ok := m[key]
+    l.Unlock()
+
+    return val, ok
+}
 ```
 
-And try to increment a `Visitors` directly from the map:
-```
-m["Uzbekistan"].Visitors++
-```
+This fixes the code, and there are no data races anymore. But, why we must lock the memory if we want just read data from it.
+Multiple goroutines can read data from map concurrently and this will not bring to data race and we are not obligated to do
+this process atomically.
 
-This will run into the following error:
-```
-cannot assign to m["Uzbekistan"].Visitors
-```
-Because accessing directly to struct fields in the map is not allowed.
+That is why we have RWMutex! We can read data concurrently and lock the memoy when there are mutations.
+## Mutex internals
 
-### Use of `RWmutex`
+## RWMutex internals
+
+## References
