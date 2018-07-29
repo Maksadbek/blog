@@ -1,28 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2017-12-25T01:12:05+03:00</updated><id>http://localhost:4000/</id><title type="html">Maksadbek’s blog</title><subtitle>Here I write my thoughts about programming and Go language.</subtitle><entry><title type="html">Golang mutex internals</title><link href="http://localhost:4000/golang/2017/11/26/golang-mutex-internals.html" rel="alternate" type="text/html" title="Golang mutex internals" /><published>2017-11-26T18:46:40+03:00</published><updated>2017-11-26T18:46:40+03:00</updated><id>http://localhost:4000/golang/2017/11/26/golang-mutex-internals</id><content type="html" xml:base="http://localhost:4000/golang/2017/11/26/golang-mutex-internals.html">&lt;h1 id=&quot;mutexes-in-go&quot;&gt;Mutexes in Go&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://maksadbek.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="http://maksadbek.github.io/" rel="alternate" type="text/html" /><updated>2018-07-29T22:46:29+03:00</updated><id>http://maksadbek.github.io/</id><title type="html">Maksadbek’s blog</title><subtitle>This is my personal blog, I write about my thoughts about programming.</subtitle><entry><title type="html">Mutex and RWMutex in Go</title><link href="http://maksadbek.github.io/golang/2017/11/26/golang-mutex-internals.html" rel="alternate" type="text/html" title="Mutex and RWMutex in Go" /><published>2017-11-26T18:46:40+03:00</published><updated>2017-11-26T18:46:40+03:00</updated><id>http://maksadbek.github.io/golang/2017/11/26/golang-mutex-internals</id><content type="html" xml:base="http://maksadbek.github.io/golang/2017/11/26/golang-mutex-internals.html">&lt;h1 id=&quot;mutexes-in-go&quot;&gt;Mutexes in Go&lt;/h1&gt;
 
 &lt;h2 id=&quot;intro&quot;&gt;Intro&lt;/h2&gt;
+
 &lt;p&gt;Mutexes are used to protect memory area from mutation by multiple goroutines at the same time.
-Memory protection is done to avoid side-effects in the program. In other case this can bring to
+Memory protection is done to avoid side-effects in the program. In other cases this can bring to
 unknown behaviour in runtime and Go memory model does not guarantee correct work if you are corrupting the memory.
-But there is a very handy tool in Golang toolbox that helps to detect data races in Go code. It helps
-to find data races while running tests and while running the programming. This is done by 
-setting &lt;code class=&quot;highlighter-rouge&quot;&gt;-race&lt;/code&gt; flag on running tests and compiling. More about this: https://golang.org/doc/articles/race_detector.html&lt;/p&gt;
+Go runtime has a race detector, it can be enable by passing &lt;code class=&quot;highlighter-rouge&quot;&gt;-race&lt;/code&gt; flag to the compiler:&lt;/p&gt;
 
-&lt;p&gt;Golang has two types of mutexes &lt;code class=&quot;highlighter-rouge&quot;&gt;Mutex&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;RWmutex&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;sync&lt;/code&gt; package. The difference will be explained.
-This blog post covers types of mutexes in and detailed information about their implemenatation.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-Golang&quot;&gt;go build -race
+go test . -race
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&quot;mutex-and-rwmutex&quot;&gt;Mutex and RWMutex&lt;/h2&gt;
-&lt;p&gt;The sync package has two types of mutexes: Mutex and RWMutex.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://golang.org/doc/articles/race_detector.html&quot;&gt;Read more about the race detector&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;The sync.Mutex structure implements sync.Locker interface and has two methods: Lock() and Unlock()
-Lock() - locks the memory and if other goroutine tries to call Lock() method, this action will be blocked
-until the Unlock() method will not be called and makes the lock available for other goroutines. You must hold the
-lock while you’re mutating memory. For example some value of map. Here is a code snippet that shows why it is needed:&lt;/p&gt;
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;sync&lt;/code&gt; package provides two types of mutexes:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Mutex&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;RWmutex&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The difference between them will be explained in this blog post.&lt;/p&gt;
+
+&lt;h2 id=&quot;mutex&quot;&gt;Mutex&lt;/h2&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;sync.Mutex&lt;/code&gt; structure implements &lt;code class=&quot;highlighter-rouge&quot;&gt;sync.Locker&lt;/code&gt; interface and has two methods:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Lock()&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Unlock()&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Lock()&lt;/code&gt; locks the memory and if other goroutine tries to call Lock() method, the goroutines will be blocked
+until the Unlock() method will not be called and makes the lock available for other goroutines.
+You must hold the lock while you’re mutating memory.
+For example:&lt;/p&gt;
+
 &lt;pre&gt;&lt;code class=&quot;language-Golang&quot;&gt;var m = map[string]int{}
 
 func mutate(key string, val int) {
     m[k] = v
-
     return
 }
 
@@ -33,13 +50,13 @@ func state(key string) (int, bool) {
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Let’s suppose that we have dozens of goroutines that try to call mutate and state functions concurrently.
-And there can be a moment when one goroutine gets state and another one mutates the map at the same time.
-In this case, there can be a data race and bring to the undefined behaviour and corrupt the memory.
-To avoid this we must do these operations atomically or consequently. There we start protecting memory with mutex.
-Code changes:&lt;/p&gt;
+And there can be a moment when one goroutine gets state and another one mutates the map &lt;strong&gt;at the same time&lt;/strong&gt;
+and this will be a data race that bring to the memory corruption.
+To avoid this, these operations must be done atomically or consequently.
+There we start protecting memory with mutex and our initial verssion of code will change:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&quot;language-Golang&quot;&gt;var m = map[string]int{}
-+ var lock = new(sync.Mutex)
+var lock = new(sync.Mutex)
 
 func mutate(key string, val int) {
     l.Lock()
@@ -58,13 +75,70 @@ func state(key string) (int, bool) {
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;This fixes the code, and there are no data races anymore. But, why we must lock the memory if we want just read data from it.
-Multiple goroutines can read data from map concurrently and this will not bring to data race and we are not obligated to do
-this process atomically.&lt;/p&gt;
+&lt;p&gt;This fixes the code and there will not be data races.
+The map state is read and written atomically.
+If the goroutine #1 is reading the state it acquires the lock.
+and if the goroutine #2 want to change/read the state at the same time,
+it has to wait until the lock will not be released by the gorotuines #1.
+That’s nice and we are satisfied with it.&lt;/p&gt;
 
-&lt;p&gt;That is why we have RWMutex! We can read data concurrently and lock the memoy when there are mutations.&lt;/p&gt;
-&lt;h2 id=&quot;mutex-internals&quot;&gt;Mutex internals&lt;/h2&gt;
+&lt;p&gt;But, what if we change the state once in hour and read every second.
+Reading the state concurrently does mutate the shared state and it is race free.
+The idea is to let allow multiple goroutines to hold the lock for reading,
+but only one goroutine can hold the lock for writing. There comes a &lt;code class=&quot;highlighter-rouge&quot;&gt;RWMutex&lt;/code&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;rwmutex-internals&quot;&gt;RWMutex internals&lt;/h2&gt;
+&lt;h2 id=&quot;rwmutex&quot;&gt;RWMutex&lt;/h2&gt;
 
-&lt;h2 id=&quot;references&quot;&gt;References&lt;/h2&gt;</content><author><name></name></author><summary type="html">Mutexes in Go</summary></entry></feed>
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;RWMutex&lt;/code&gt; or read write mutex allows multiple goroutines to hold the read lock but only one goroutines can hold the write lock:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;A RWMutex is a reader/writer mutual exclusion lock. The lock can be held by an arbitrary number of readers or a single writer. The zero value for a RWMutex is an unlocked mutex.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;RWMutex&lt;/code&gt; has adds couple more methods to acquire and release the lock only for reading:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;RLock()&lt;/code&gt; acquires the lock for reading, and it can be held my multiple goroutines.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;RUnlock()&lt;/code&gt; releases the single RLock().&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Lock()&lt;/code&gt; locks the state for writing, and if the lock is held by gorotuines for reading,
+it waits until the read lock is realeased and does not let other goroutines to acquire the lock:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Lock locks rw for writing. If the lock is already locked for reading or writing, Lock blocks until the lock is available.
+If a goroutine holds a RWMutex for reading and another goroutine might call Lock, no goroutine should expect to be able to acquire a read lock until the initial read lock is released. In particular, this prohibits recursive read locking. This is to ensure that the lock eventually becomes available; a blocked Lock call excludes new readers from acquiring the lock.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The second version of code that used Mutex will be changed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Golang&quot;&gt;var m = map[string]int{}
+var lock = new(sync.RWMutex)
+
+func mutate(key string, val int) {
+    l.Lock()
+    m[k] = v
+    l.Unlock()
+
+    return
+}
+
+func state(key string) (int, bool) {
+    l.RLock()
+    val, ok := m[key]
+    l.RUnlock()
+
+    return val, ok
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We just simply replaced &lt;code class=&quot;highlighter-rouge&quot;&gt;Mutex&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;RWMutex&lt;/code&gt;, and calling &lt;code class=&quot;highlighter-rouge&quot;&gt;RLock&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;RUnlock&lt;/code&gt; instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;Lock&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Unlock&lt;/code&gt; while reading the state.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://medium.com/golangspec/sync-rwmutex-ca6c6c3208a0&quot;&gt;Read here to know about Mutex internals in Golang&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;references&quot;&gt;References&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://godoc.org/sync&quot;&gt;Go sync package documentation&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://blog.golang.org/go-maps-in-action#TOC_6.&quot;&gt;Go maps in action blog post&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><summary type="html">Mutexes in Go</summary></entry></feed>
