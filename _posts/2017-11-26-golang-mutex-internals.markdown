@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: home
 title:  "Mutex and RWMutex in Go"
 date:   2017-11-26 20:46:40 +0500
 categories: golang
@@ -16,6 +16,7 @@ To run a function as a goroutine, it must be invocated with `go` keyword: `go li
 Goroutines can have a common shared state and communication to access that state can be done via channels or via just accessing that shared state.
 The popular Go proverb is:
 > Don't communicate by sharing memory, share memory by communicating. (Rob Pike)
+
 That is, communication is done better and clearer when you share the state via channels through goroutines than directly accessing the shared state.
 
 This blog post does cover the channel communication.
