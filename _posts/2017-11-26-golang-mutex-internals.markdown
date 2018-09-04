@@ -5,8 +5,6 @@ date:   2017-11-26 20:46:40 +0500
 categories: golang
 ---
 
-# Mutex and RWMutex in Go
-
 Go has builtin facilities for writing concurrent programs.
 The concurrency pattern is implemented with CSP(Communication Sequential Processes) model that was introduced by Tony Hoare in 1978.
 The concurrent code in Go is written using goroutines and channels.
