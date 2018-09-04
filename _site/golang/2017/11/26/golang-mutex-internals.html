@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Mutex and RWMutex in Go</title>
-  <meta name="description" content="Mutex and RWMutex in Go">
+  <meta name="description" content="Go has builtin facilities for writing concurrent programs. The concurrency pattern is implemented with CSP(Communication Sequential Processes) model that was...">
 
   <link rel="stylesheet" href="/assets/main.css">
   <link rel="canonical" href="http://maksadbek.github.io/golang/2017/11/26/golang-mutex-internals.html">
@@ -72,22 +72,11 @@
 
     <main class="page-content" aria-label="Content">
       <div class="wrapper">
-        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="home">
 
-  <header class="post-header">
-    <h1 class="post-title" itemprop="name headline">Mutex and RWMutex in Go</h1>
-    <p class="post-meta">
-      <time datetime="2017-11-26T18:46:40+03:00" itemprop="datePublished">
-        
-        Nov 26, 2017
-      </time>
-      </p>
-  </header>
-
-  <div class="post-content" itemprop="articleBody">
-    <h1 id="mutex-and-rwmutex-in-go">Mutex and RWMutex in Go</h1>
-
-<p>Go has builtin facilities for writing concurrent programs.
+  <h1 class="page-heading">Posts</h1>
+  
+  <p>Go has builtin facilities for writing concurrent programs.
 The concurrency pattern is implemented with CSP(Communication Sequential Processes) model that was introduced by Tony Hoare in 1978.
 The concurrent code in Go is written using goroutines and channels.
 Goroutines are functions that run simultaneously and usually use channels to synchronize with each other.
@@ -96,9 +85,10 @@ To run a function as a goroutine, it must be invocated with <code class="highlig
 <p>Goroutines can have a common shared state and communication to access that state can be done via channels or via just accessing that shared state.
 The popular Go proverb is:</p>
 <blockquote>
-  <p>Don’t communicate by sharing memory, share memory by communicating. (Rob Pike)
-That is, communication is done better and clearer when you share the state via channels through goroutines than directly accessing the shared state.</p>
+  <p>Don’t communicate by sharing memory, share memory by communicating. (Rob Pike)</p>
 </blockquote>
+
+<p>That is, communication is done better and clearer when you share the state via channels through goroutines than directly accessing the shared state.</p>
 
 <p>This blog post does cover the channel communication.
 It explains how to safely access the shared state using mutual exclusions in Go.</p>
@@ -303,10 +293,23 @@ func main() {
   <li><a href="https://blog.golang.org/go-maps-in-action#TOC_6.">Go maps in action blog post</a></li>
 </ul>
 
-  </div>
 
-  
-</article>
+  <ul class="post-list">
+    
+      <li>
+        
+        <span class="post-meta">Nov 26, 2017</span>
+
+        <h2>
+          <a class="post-link" href="/golang/2017/11/26/golang-mutex-internals.html">Mutex and RWMutex in Go</a>
+        </h2>
+      </li>
+    
+  </ul>
+
+  <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p>
+
+</div>
 
       </div>
     </main>
