@@ -1,4 +1,81 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://maksadbek.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="http://maksadbek.github.io/" rel="alternate" type="text/html" /><updated>2018-09-04T16:41:33+03:00</updated><id>http://maksadbek.github.io/</id><title type="html">Maksadbek’s blog</title><subtitle>This is my personal blog, articles are mostly about the things that I did not understand before, that is why I explored them and wrote an article.</subtitle><entry><title type="html">Mutex and RWMutex in Go</title><link href="http://maksadbek.github.io/golang/2017/11/26/golang-mutex-internals.html" rel="alternate" type="text/html" title="Mutex and RWMutex in Go" /><published>2017-11-26T18:46:40+03:00</published><updated>2017-11-26T18:46:40+03:00</updated><id>http://maksadbek.github.io/golang/2017/11/26/golang-mutex-internals</id><content type="html" xml:base="http://maksadbek.github.io/golang/2017/11/26/golang-mutex-internals.html">&lt;p&gt;Go has builtin facilities for writing concurrent programs.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-04-23T17:00:50+03:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Maksadbek’s blog</title><subtitle>This is my personal blog, articles are mostly about the things that I did not understand before, that is why I explored them and wrote an article.</subtitle><entry><title type="html">Maximum Flow</title><link href="http://localhost:4000/algorithms/2019/04/23/maximum-flow.html" rel="alternate" type="text/html" title="Maximum Flow" /><published>2019-04-23T14:46:40+03:00</published><updated>2019-04-23T14:46:40+03:00</updated><id>http://localhost:4000/algorithms/2019/04/23/maximum-flow</id><content type="html" xml:base="http://localhost:4000/algorithms/2019/04/23/maximum-flow.html">&lt;blockquote&gt;
+  &lt;p&gt;This is a draft. Contains lots of mistakes. Stop here and close the tab. No kidding.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;maximum-flow-problem-and-the-ford-fulkerson-algorithm&quot;&gt;Maximum-flow problem and the Ford-Fulkerson algorithm&lt;/h2&gt;
+
+&lt;h3 id=&quot;flow-and-flow-networks&quot;&gt;Flow and flow networks&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;flow network&lt;/strong&gt; is a graph $G = (V, E)$ with the following features:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;each edge has a nonnegative capacity - $c_e$&lt;/li&gt;
+  &lt;li&gt;the is a single node considered as &lt;em&gt;source&lt;/em&gt; of the flow&lt;/li&gt;
+  &lt;li&gt;the is a single node considered as &lt;em&gt;sink&lt;/em&gt; that absorbs the flow.&lt;/li&gt;
+  &lt;li&gt;no edge enters the &lt;em&gt;source&lt;/em&gt; and no edges leaves &lt;em&gt;sink&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;there is at least one edge incident to each node.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;the nodes other than &lt;em&gt;source&lt;/em&gt; and &lt;em&gt;sink&lt;/em&gt; are called &lt;em&gt;internal&lt;/em&gt; nodes.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;flow&lt;/strong&gt; is a function $f$ that maps each edge &lt;em&gt;e&lt;/em&gt; to a nonnegative real number: $f: e \to r$; the value of $f(e)$ represents the amount of flow carried by edge $e$. a flow $f$ must satisfy the following two properties:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;capacity conditions&lt;/strong&gt;: for each $e \in e$, we have $ 0&amp;lt;= f(e) &amp;lt;= c_e$. the flow on edge $e$ cannot exceed the capacity of edge. i.e: flow in equals flow out.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;conservation conditions&lt;/strong&gt;: for each nodes $v$ other than $s$ and $t$, we have $ \sum_{v \in v} f(v, u) = \sum_{v \in v} f(u, v) $. The node $v$ can omit as much flow as incoming from $u$.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The flow from $u$ to $v$ is a nonnegative and defined as $f(u, v)$.&lt;/p&gt;
+
+&lt;p&gt;The value of a flow $f$ is denoted with $\vert f \vert$ and defined as: $\vert f \vert = \sum_{v \in v} f(s, v) - \sum_{v \in v} f(v, s)$.&lt;/p&gt;
+
+&lt;p&gt;That is, the total from out of source to adjacent vertexes minus the total flow from adjacent vertexes into source. yes, this can happen, where source node has both incoming and outgoing edges.&lt;/p&gt;
+
+&lt;p&gt;Even if we have a rule “no edge enters the &lt;em&gt;source&lt;/em&gt;”. But, this formula covers only “residual networks”.&lt;/p&gt;
+
+&lt;p&gt;to solve this problem we use ford-fulkerson method. this method iteratively increases the value of the flow.&lt;/p&gt;
+
+&lt;p&gt;todo: write about this method.&lt;/p&gt;
+
+&lt;h3 id=&quot;residual-networks&quot;&gt;residual networks&lt;/h3&gt;
+
+&lt;p&gt;the residual network consists of edges with capacities that represent how we can change the flow on edge of graph g. the residual network is denoted as $g_f$. some edges of the flow network does not use all the capacity of the edge. so, it can admit more flow: capacity minus flow. we place that edge into $g_f$ with “residual capacity” of $c_f(u,v) = c(u,v) - f(u,v)$. those edges whose flow equals their capacity are not included in $g_f$. however, the residual network can contain edges that does not exist in original graph. more formally, the &lt;strong&gt;residual capacity&lt;/strong&gt; defined as follows:
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+c_f(u, v) = \begin{cases} c(u, v) - f(u, v) &amp; \text{if (u, v) $\in$ e} \\
+                            f(u, v) &amp; \text{if(v, u) $\in$ e} \\
+                            0 &amp; \text{otherwise}
+              \end{cases} %]]&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;we choose a path from residual network and then augment that path with flow $f$. the augmented flow is denoted as $f \arrow_up f$ and its definition is previous flow plus the new flow minus going back flow. we find the minimum flow in the residual path and send it to the path. this avoid getting going back flows. the intuition behind this  definition as follows:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;we increase the flow on .u; 􏰁/ by f 0.u; 􏰁/ but decrease it by f 0.􏰁; u/ because pushing flow on the reverse edge in the residual network signifies decreasing the flow in the original network. pushing flow on the reverse edge in the residual network is also known as cancellation. for example, if we send 5 crates of hockey pucks from u to 􏰁 and send 2 crates from 􏰁 to u, we could equivalently (from the perspective of the final result) just send 3 creates from u to 􏰁 and none from 􏰁 to u. cancellation of this type is crucial for any maximum-flow algorithm&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;the path from $s$ to $t$ in the residual network is called &lt;strong&gt;augmenting path&lt;/strong&gt;. we can increase the flow of edge $(u, v)$ of an aughmenting path by up to $c_f(u, v)$. the maximum amount by which we can increase the flow of edges in the path is called a &lt;strong&gt;residual capacity&lt;/strong&gt; and it is defined as: $c_f(p) = \min{ c_f(u, v): (u, v) \text{ is on } p }$&lt;/p&gt;
+
+&lt;p&gt;lemma 26.1
+letgd.v;e/beaflownetworkwithsourcesandsinkt,andletf beaflow ing. letgf betheresidualnetworkofginducedbyf,andletf0 beaflow in gf . then the function f “ f 0 defined in equation (26.4) is a flow in g with valuejf “f0jdjfjcjf0j.&lt;/p&gt;
+
+&lt;h3 id=&quot;cuts-of-flow-networks&quot;&gt;cuts of flow networks&lt;/h3&gt;
+
+&lt;p&gt;we get a maximum flow continously augmenting the flow along augmenting paths until there are no paths left from $s$ to $t$. the problem is how do we verify the maximum flow. we need techniques for bounding the size of maxflow. the basic idea is to find a &lt;strong&gt;bottleneck&lt;/strong&gt; for the flow and all flow needs to cross the bottleneck.
+a minimum cut of a network is a cut whose capacity is minimum over all cuts of the network.&lt;/p&gt;
+
+&lt;p&gt;the max-flow min-cut theorem tells us that a flow is maximum if and only if its residual network contains no augmenting path.&lt;/p&gt;
+
+&lt;p&gt;firstly, a cut $(s, t)$ of flow $g = (v, e)$ is partition of $v$ into $s$ and $t = v - s$. simply, the first half of the cut contains all the sources of $g$. the net-flow $f(s,t)$ is defined as &lt;script type=&quot;math/tex&quot;&gt;f(s,t) = \sum_{u \in s} \sum_{v \in t} f(u, v) - \sum_{u \in s} \sum_{v \in t} f(v, u)&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;that is the sum of flow going to cut $s$ minus sum of flows going back from $t$ into $s$.&lt;/p&gt;
+
+&lt;p&gt;the capacity of cut is $c(s, t) = \sum_{u \in s} \sum_{v \in t} c(u, v)$&lt;/p&gt;
+
+&lt;p&gt;the &lt;strong&gt;minimum cut&lt;/strong&gt; of network is a cut whose capacity in minimum over all cuts of the network.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><summary type="html">This is a draft. Contains lots of mistakes. Stop here and close the tab. No kidding.</summary></entry><entry><title type="html">Mutex and RWMutex in Go</title><link href="http://localhost:4000/golang/2017/11/26/golang-mutex-internals.html" rel="alternate" type="text/html" title="Mutex and RWMutex in Go" /><published>2017-11-26T18:46:40+03:00</published><updated>2017-11-26T18:46:40+03:00</updated><id>http://localhost:4000/golang/2017/11/26/golang-mutex-internals</id><content type="html" xml:base="http://localhost:4000/golang/2017/11/26/golang-mutex-internals.html">&lt;p&gt;Go has builtin facilities for writing concurrent programs.
 The concurrency pattern is implemented with CSP(Communication Sequential Processes) model that was introduced by Tony Hoare in 1978.
 The concurrent code in Go is written using goroutines and channels.
 Goroutines are functions that run simultaneously and usually use channels to synchronize with each other.
