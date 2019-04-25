@@ -1,3 +1,13 @@
+---
+layout: post
+title:  "Maximum Flow"
+date:   2019-04-23 16:46:40 +0500
+categories: algorithms
+mathjax: true
+---
+
+> This is a draft. Contains lots of mistakes. Stop here and close the tab. No kidding.
+
 ## Maximum-flow problem and Ford-Fulkerson algorithm
 
 ### Flow and flow networks
