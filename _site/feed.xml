@@ -1,81 +1,231 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-04-23T17:00:50+03:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Maksadbek’s blog</title><subtitle>This is my personal blog, articles are mostly about the things that I did not understand before, that is why I explored them and wrote an article.</subtitle><entry><title type="html">Maximum Flow</title><link href="http://localhost:4000/algorithms/2019/04/23/maximum-flow.html" rel="alternate" type="text/html" title="Maximum Flow" /><published>2019-04-23T14:46:40+03:00</published><updated>2019-04-23T14:46:40+03:00</updated><id>http://localhost:4000/algorithms/2019/04/23/maximum-flow</id><content type="html" xml:base="http://localhost:4000/algorithms/2019/04/23/maximum-flow.html">&lt;blockquote&gt;
-  &lt;p&gt;This is a draft. Contains lots of mistakes. Stop here and close the tab. No kidding.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;maximum-flow-problem-and-the-ford-fulkerson-algorithm&quot;&gt;Maximum-flow problem and the Ford-Fulkerson algorithm&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.3">Jekyll</generator><link href="http://maksadbek.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="http://maksadbek.github.io/" rel="alternate" type="text/html" /><updated>2019-04-26T00:33:12+03:00</updated><id>http://maksadbek.github.io/feed.xml</id><title type="html">Maksadbek’s blog</title><subtitle>This is my personal blog, articles are mostly about the things that I did not understand before, that is why I explored them and wrote an article.</subtitle><entry><title type="html">Maximum Flow</title><link href="http://maksadbek.github.io/2019/04/23/maximum-flow.html" rel="alternate" type="text/html" title="Maximum Flow" /><published>2019-04-23T00:00:00+03:00</published><updated>2019-04-23T00:00:00+03:00</updated><id>http://maksadbek.github.io/2019/04/23/maximum-flow</id><content type="html" xml:base="http://maksadbek.github.io/2019/04/23/maximum-flow.html">&lt;h2 id=&quot;maximum-flow-problem-and-ford-fulkerson-algorithm&quot;&gt;Maximum-flow problem and Ford-Fulkerson algorithm&lt;/h2&gt;
 
 &lt;h3 id=&quot;flow-and-flow-networks&quot;&gt;Flow and flow networks&lt;/h3&gt;
 
-&lt;p&gt;&lt;strong&gt;flow network&lt;/strong&gt; is a graph $G = (V, E)$ with the following features:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Flow network&lt;/strong&gt; is a graph $G = (V, E)$ with the following features:&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;each edge has a nonnegative capacity - $c_e$&lt;/li&gt;
-  &lt;li&gt;the is a single node considered as &lt;em&gt;source&lt;/em&gt; of the flow&lt;/li&gt;
-  &lt;li&gt;the is a single node considered as &lt;em&gt;sink&lt;/em&gt; that absorbs the flow.&lt;/li&gt;
-  &lt;li&gt;no edge enters the &lt;em&gt;source&lt;/em&gt; and no edges leaves &lt;em&gt;sink&lt;/em&gt;&lt;/li&gt;
-  &lt;li&gt;there is at least one edge incident to each node.&lt;/li&gt;
+  &lt;li&gt;Each edge has a nonnegative capacity - $c_e$&lt;/li&gt;
+  &lt;li&gt;The is a single node considered as &lt;em&gt;source&lt;/em&gt; of the flow&lt;/li&gt;
+  &lt;li&gt;The is a single node considered as &lt;em&gt;sink&lt;/em&gt; that absorbs the flow.&lt;/li&gt;
+  &lt;li&gt;No edge enters the &lt;em&gt;source&lt;/em&gt; and no edges leaves &lt;em&gt;sink&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;There is at least one edge incident to each node.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;the nodes other than &lt;em&gt;source&lt;/em&gt; and &lt;em&gt;sink&lt;/em&gt; are called &lt;em&gt;internal&lt;/em&gt; nodes.&lt;/p&gt;
+&lt;p&gt;The nodes other than &lt;em&gt;source&lt;/em&gt; and &lt;em&gt;sink&lt;/em&gt; are called &lt;em&gt;internal&lt;/em&gt; nodes.&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;flow&lt;/strong&gt; is a function $f$ that maps each edge &lt;em&gt;e&lt;/em&gt; to a nonnegative real number: $f: e \to r$; the value of $f(e)$ represents the amount of flow carried by edge $e$. a flow $f$ must satisfy the following two properties:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Flow&lt;/strong&gt; is a function $f$ that maps each edge $e$ to a nonnegative real number: $f: e \to r$; the value of $f(e)$ represents the amount of flow carried by edge $e$. a flow $f$ must satisfy the following two properties:&lt;/p&gt;
+
 &lt;ol&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;capacity conditions&lt;/strong&gt;: for each $e \in e$, we have $ 0&amp;lt;= f(e) &amp;lt;= c_e$. the flow on edge $e$ cannot exceed the capacity of edge. i.e: flow in equals flow out.&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Capacity conditions&lt;/strong&gt; - for each $e \in e$, we have $ 0&amp;lt;= f(e) &amp;lt;= c_e$. the flow on edge $e$ cannot exceed the capacity of edge. i.e: flow in equals flow out.&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;conservation conditions&lt;/strong&gt;: for each nodes $v$ other than $s$ and $t$, we have $ \sum_{v \in v} f(v, u) = \sum_{v \in v} f(u, v) $. The node $v$ can omit as much flow as incoming from $u$.&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Conservation conditions&lt;/strong&gt; - for each nodes $v$ other than $s$ and $t$, we have $ \sum_{v \in v} f(v, u) = \sum_{v \in v} f(u, v) $. The node $v$ can omit as much flow as incoming from $u$.&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;The flow from $u$ to $v$ is a nonnegative and defined as $f(u, v)$.&lt;/p&gt;
-
-&lt;p&gt;The value of a flow $f$ is denoted with $\vert f \vert$ and defined as: $\vert f \vert = \sum_{v \in v} f(s, v) - \sum_{v \in v} f(v, s)$.&lt;/p&gt;
-
-&lt;p&gt;That is, the total from out of source to adjacent vertexes minus the total flow from adjacent vertexes into source. yes, this can happen, where source node has both incoming and outgoing edges.&lt;/p&gt;
+&lt;p&gt;The flow from $u$ to $v$ is a nonnegative and defined as $f(u, v)$ and value of a flow $f$ is denoted with $\vert f \vert$ and defined as: $\vert f \vert = \sum_{v \in v} f(s, v) - \sum_{v \in v} f(v, s)$. That is, the total from out of source to adjacent vertexes minus the total flow from adjacent vertexes into source. yes, this can happen, where source node has both incoming and outgoing edges.&lt;/p&gt;
 
 &lt;p&gt;Even if we have a rule “no edge enters the &lt;em&gt;source&lt;/em&gt;”. But, this formula covers only “residual networks”.&lt;/p&gt;
 
-&lt;p&gt;to solve this problem we use ford-fulkerson method. this method iteratively increases the value of the flow.&lt;/p&gt;
+&lt;p&gt;To solve this problem we use Ford-Fulkerson method. This method iteratively increases overall value of flow and on each iteration increases the flow of the edges of some path from $s$ to $t$ as much as possible:&lt;/p&gt;
 
-&lt;p&gt;todo: write about this method.&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;function ford-fulkerson(G, s, t):
+    let flow be 0
+    let G_f be the residual network of G
+    
+    while there exists a path P in Gf:
+        let min_res_cap be the minimum residual capacity in P
+        augment edges of P by min_res_cap
+        increment flow by min_res_cap
+    end
+    
+    return flow
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;h3 id=&quot;residual-networks&quot;&gt;residual networks&lt;/h3&gt;
+&lt;h3 id=&quot;residual-networks&quot;&gt;Residual networks&lt;/h3&gt;
 
-&lt;p&gt;the residual network consists of edges with capacities that represent how we can change the flow on edge of graph g. the residual network is denoted as $g_f$. some edges of the flow network does not use all the capacity of the edge. so, it can admit more flow: capacity minus flow. we place that edge into $g_f$ with “residual capacity” of $c_f(u,v) = c(u,v) - f(u,v)$. those edges whose flow equals their capacity are not included in $g_f$. however, the residual network can contain edges that does not exist in original graph. more formally, the &lt;strong&gt;residual capacity&lt;/strong&gt; defined as follows:
+&lt;p&gt;The residual network consists of edges with capacities that represent how we can change the flow on edge of graph g. the residual network is denoted as $g_f$. Some edges of the flow network does not use all the capacity of the edge. So, it can admit more flow: capacity minus flow. We place that edge into $g_f$ with “residual capacity” of $c_f(u,v) = c(u,v) - f(u,v)$. those edges whose flow equals their capacity are not included in $g_f$. however, the residual network can contain edges that does not exist in original graph. more formally, the &lt;strong&gt;residual capacity&lt;/strong&gt; defined as follows:
 &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
 c_f(u, v) = \begin{cases} c(u, v) - f(u, v) &amp; \text{if (u, v) $\in$ e} \\
                             f(u, v) &amp; \text{if(v, u) $\in$ e} \\
                             0 &amp; \text{otherwise}
               \end{cases} %]]&gt;&lt;/script&gt;&lt;/p&gt;
 
-&lt;p&gt;we choose a path from residual network and then augment that path with flow $f$. the augmented flow is denoted as $f \arrow_up f$ and its definition is previous flow plus the new flow minus going back flow. we find the minimum flow in the residual path and send it to the path. this avoid getting going back flows. the intuition behind this  definition as follows:&lt;/p&gt;
+&lt;p&gt;we choose a path from residual network and then augment that path with flow $f$. the augmented flow is denoted as $f \uparrow f$ and its definition is previous flow plus the new flow minus going back flow. we find the minimum flow in the residual path and send it to the path. this avoid getting going back flows. the intuition behind this  definition as follows:&lt;/p&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;we increase the flow on .u; 􏰁/ by f 0.u; 􏰁/ but decrease it by f 0.􏰁; u/ because pushing flow on the reverse edge in the residual network signifies decreasing the flow in the original network. pushing flow on the reverse edge in the residual network is also known as cancellation. for example, if we send 5 crates of hockey pucks from u to 􏰁 and send 2 crates from 􏰁 to u, we could equivalently (from the perspective of the final result) just send 3 creates from u to 􏰁 and none from 􏰁 to u. cancellation of this type is crucial for any maximum-flow algorithm&lt;/p&gt;
+  &lt;p&gt;We increase the flow on $(u, v)$ by $f’(u, v)$ but decrease it by $f’(v, u)$ because pushing flow on the reverse edge in the residual network signifies decreasing the flow in the original network. pushing flow on the reverse edge in the residual network is also known as cancellation. for example, if we send 5 crates of hockey pucks from $u$ to $v$ and send 2 crates from $v$ to $u$, we could equivalently (from the perspective of the final result) just send 3 creates from $u$ to $v$ and none from $v$ to $u$. Cancellation of this type is crucial for any maximum-flow algorithm&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;the path from $s$ to $t$ in the residual network is called &lt;strong&gt;augmenting path&lt;/strong&gt;. we can increase the flow of edge $(u, v)$ of an aughmenting path by up to $c_f(u, v)$. the maximum amount by which we can increase the flow of edges in the path is called a &lt;strong&gt;residual capacity&lt;/strong&gt; and it is defined as: $c_f(p) = \min{ c_f(u, v): (u, v) \text{ is on } p }$&lt;/p&gt;
+&lt;p&gt;The path from $s$ to $t$ in the residual network is called &lt;strong&gt;augmenting path&lt;/strong&gt;. we can increase the flow of edge $(u, v)$ of an aughmenting path by up to $c_f(u, v)$. the maximum amount by which we can increase the flow of edges in the path is called a &lt;strong&gt;residual capacity&lt;/strong&gt; and it is defined as: $c_f(p) = \min{ c_f(u, v): (u, v) \text{ is on } p }$&lt;/p&gt;
 
-&lt;p&gt;lemma 26.1
-letgd.v;e/beaflownetworkwithsourcesandsinkt,andletf beaflow ing. letgf betheresidualnetworkofginducedbyf,andletf0 beaflow in gf . then the function f “ f 0 defined in equation (26.4) is a flow in g with valuejf “f0jdjfjcjf0j.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Lemma:&lt;/strong&gt; Let $G = (V, E)$ be a flow network with source $s$ and sink $t$,and let $f$ be a flow in $G$. Let $G_f$ be the residual network of $G$ induced by $f$,and let $f’$ be a flow in $G_f$. Then the function $f \uparrow f’$ defined in equation (26.4) is a flow in $G$ with value $\vert f \uparrow f’ \vert = \vert f \vert + \vert f \vert + \vert f’ \vert$.&lt;/p&gt;
 
-&lt;h3 id=&quot;cuts-of-flow-networks&quot;&gt;cuts of flow networks&lt;/h3&gt;
+&lt;h3 id=&quot;cuts-of-flow-networks&quot;&gt;Cuts of flow networks&lt;/h3&gt;
 
 &lt;p&gt;we get a maximum flow continously augmenting the flow along augmenting paths until there are no paths left from $s$ to $t$. the problem is how do we verify the maximum flow. we need techniques for bounding the size of maxflow. the basic idea is to find a &lt;strong&gt;bottleneck&lt;/strong&gt; for the flow and all flow needs to cross the bottleneck.
 a minimum cut of a network is a cut whose capacity is minimum over all cuts of the network.&lt;/p&gt;
 
 &lt;p&gt;the max-flow min-cut theorem tells us that a flow is maximum if and only if its residual network contains no augmenting path.&lt;/p&gt;
 
-&lt;p&gt;firstly, a cut $(s, t)$ of flow $g = (v, e)$ is partition of $v$ into $s$ and $t = v - s$. simply, the first half of the cut contains all the sources of $g$. the net-flow $f(s,t)$ is defined as &lt;script type=&quot;math/tex&quot;&gt;f(s,t) = \sum_{u \in s} \sum_{v \in t} f(u, v) - \sum_{u \in s} \sum_{v \in t} f(v, u)&lt;/script&gt;&lt;/p&gt;
+&lt;p&gt;firstly, a cut $(s, t)$ of flow $g = (v, e)$ is partition of $v$ into $s$ and $t = v - s$. simply, the first half of the cut contains all the sources of $g$. the net-flow $f(s,t)$ is defined as &lt;script type=&quot;math/tex&quot;&gt;f(s,t) = \sum_{u \in s} \sum_{v \in t} f(u, v) - \sum_{u \in s} \sum_{v \in t} f(v, u)&lt;/script&gt; That is the sum of flow going to cut $s$ minus sum of flows going back from $t$ into $s$.&lt;/p&gt;
 
-&lt;p&gt;that is the sum of flow going to cut $s$ minus sum of flows going back from $t$ into $s$.&lt;/p&gt;
+&lt;p&gt;The capacity of cut is $c(s, t) = \sum_{u \in s} \sum_{v \in t} c(u, v)$. The &lt;strong&gt;minimum cut&lt;/strong&gt; of network is a cut whose capacity in minimum over all cuts of the network.&lt;/p&gt;
 
-&lt;p&gt;the capacity of cut is $c(s, t) = \sum_{u \in s} \sum_{v \in t} c(u, v)$&lt;/p&gt;
+&lt;h3 id=&quot;code&quot;&gt;Code&lt;/h3&gt;
 
-&lt;p&gt;the &lt;strong&gt;minimum cut&lt;/strong&gt; of network is a cut whose capacity in minimum over all cuts of the network.&lt;/p&gt;
+&lt;p&gt;The implementation of this algorithm is written in C++&lt;/p&gt;
 
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><summary type="html">This is a draft. Contains lots of mistakes. Stop here and close the tab. No kidding.</summary></entry><entry><title type="html">Mutex and RWMutex in Go</title><link href="http://localhost:4000/golang/2017/11/26/golang-mutex-internals.html" rel="alternate" type="text/html" title="Mutex and RWMutex in Go" /><published>2017-11-26T18:46:40+03:00</published><updated>2017-11-26T18:46:40+03:00</updated><id>http://localhost:4000/golang/2017/11/26/golang-mutex-internals</id><content type="html" xml:base="http://localhost:4000/golang/2017/11/26/golang-mutex-internals.html">&lt;p&gt;Go has builtin facilities for writing concurrent programs.
+&lt;pre&gt;&lt;code class=&quot;language-C++&quot;&gt;#include &amp;lt;algorithm&amp;gt;
+#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;limits&amp;gt;
+#include &amp;lt;stack&amp;gt;
+#include &amp;lt;vector&amp;gt;
+
+using std::min;
+using std::numeric_limits;
+using std::stack;
+using std::vector;
+
+struct Edge {
+  int from, to, capacity, flow;
+};
+
+class FlowGraph {
+private:
+  vector&amp;lt;Edge&amp;gt; edges;
+  vector&amp;lt;vector&amp;lt;size_t&amp;gt;&amp;gt; graph;
+
+public:
+  explicit FlowGraph(size_t n) : graph(n) {}
+
+  void add_edge(int from, int to, int capacity) {
+    // We first append a forward edge and then a backward edge.
+    // All forward edges are stored at EVEN indices (starting from 0),
+    // whereas backward edges are stored at ODD indices in the list edges.
+    Edge forward_edge = {from, to, capacity, 0};
+    Edge backward_edge = {to, from, 0, 0};
+
+    graph[from].push_back(edges.size());
+    edges.push_back(forward_edge);
+
+    graph[to].push_back(edges.size());
+    edges.push_back(backward_edge);
+  }
+
+  size_t size() const { return graph.size(); }
+
+  const vector&amp;lt;size_t&amp;gt; &amp;amp;get_ids(int from) const {
+    return graph[from];
+  }
+
+  const Edge &amp;amp;get_edge(size_t id) const {
+    return edges[id];
+  }
+
+  void add_flow(size_t id, int flow) {
+    /*
+     * To get a backward edge for a true forward edge (i.e id is even), we
+     * should get id + 1 due to the described above scheme. On the other hand,
+     * when we have to get a &quot;backward&quot; edge for a backward edge (i.e. get a
+     * forward edge for backward - id is odd), id - 1 should be taken.
+     *
+     * It turns out that id ^ 1 works for both cases. Think this through!
+     */
+    edges[id].flow += flow;
+    edges[id ^ 1].flow -= flow;
+  }
+};
+
+FlowGraph read_data() {
+  int vertex_count, edge_count;
+  std::cin &amp;gt;&amp;gt; vertex_count &amp;gt;&amp;gt; edge_count;
+  FlowGraph graph(vertex_count);
+  for (int i = 0; i &amp;lt; edge_count; ++i) {
+    int u, v, capacity;
+    std::cin &amp;gt;&amp;gt; u &amp;gt;&amp;gt; v &amp;gt;&amp;gt; capacity;
+    graph.add_edge(u - 1, v - 1, capacity);
+  }
+  return graph;
+}
+
+vector&amp;lt;int&amp;gt; dfs(FlowGraph &amp;amp;graph, int from, int to) {
+  stack&amp;lt;int&amp;gt; s;
+  s.push(from);
+  vector&amp;lt;bool&amp;gt; used(graph.size());
+  vector&amp;lt;int&amp;gt; parent(graph.size(), -1);
+
+  while (!s.empty()) {
+    int u = s.top();
+    s.pop();
+    used[u] = true;
+
+    if(u == to) {
+    	break;
+    }
+
+    for (auto v : graph.get_ids(u)) {
+      const Edge&amp;amp; edge = graph.get_edge(v);
+      if ((edge.capacity - edge.flow) &amp;lt;= 0) {
+        continue;
+      }
+
+      if (!used[edge.to]) {
+      	s.push(edge.to);
+        parent[edge.to] = v;
+      }
+    }
+  }
+
+
+  vector&amp;lt;int&amp;gt; path;
+  while(to != from) {
+    auto id = parent[to];
+    if(id == -1) {
+      return vector&amp;lt;int&amp;gt;();
+    }
+    path.push_back(id);
+    to = graph.get_edge(id).from;
+  }
+
+  return path;
+}
+
+int max_flow(FlowGraph &amp;amp;graph, int from, int to) {
+  int flow = 0;
+
+  while (true) {
+    auto path = dfs(graph, from, to);
+    if (path.empty()) {
+      break;
+    }
+
+    int cf = numeric_limits&amp;lt;int&amp;gt;::max();
+
+    for (auto &amp;amp;edge_id: path) {
+      auto edge = graph.get_edge(edge_id);
+      cf = min(cf, edge.capacity - edge.flow);
+    }
+
+    flow += cf;
+
+    for(auto &amp;amp;edge : path) {
+      graph.add_flow(edge, cf);
+    }
+  }
+
+  return flow;
+}
+
+int main() {
+  FlowGraph graph = read_data();
+
+  std::cout &amp;lt;&amp;lt; max_flow(graph, 0, graph.size() - 1) &amp;lt;&amp;lt; &quot;\n&quot;;
+  return 0;
+}
+
+&lt;/code&gt;&lt;/pre&gt;</content><author><name></name></author><summary type="html">Maximum-flow problem and Ford-Fulkerson algorithm</summary></entry><entry><title type="html">Mutex and RWMutex in Go</title><link href="http://maksadbek.github.io/golang/2017/11/26/golang-mutex-internals.html" rel="alternate" type="text/html" title="Mutex and RWMutex in Go" /><published>2017-11-26T18:46:40+03:00</published><updated>2017-11-26T18:46:40+03:00</updated><id>http://maksadbek.github.io/golang/2017/11/26/golang-mutex-internals</id><content type="html" xml:base="http://maksadbek.github.io/golang/2017/11/26/golang-mutex-internals.html">&lt;p&gt;Go has builtin facilities for writing concurrent programs.
 The concurrency pattern is implemented with CSP(Communication Sequential Processes) model that was introduced by Tony Hoare in 1978.
 The concurrent code in Go is written using goroutines and channels.
 Goroutines are functions that run simultaneously and usually use channels to synchronize with each other.
