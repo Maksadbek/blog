@@ -8,7 +8,10 @@ mathjax: true
 
 > This is a draft. Contains lots of mistakes. Stop here and close the tab. No kidding.
 
-## Maximum-flow problem and Ford-Fulkerson algorithm
+## Maximum-flow problem with Ford-Fulkerson and Edmonds-Karp algorithms
+
+TODO: improve
+This blog post explains hard mathematical proofs of max-flow min cut theorem and digest of my readings on CRLS.
 
 ### Flow and flow networks
 
@@ -230,3 +233,7 @@ int main() {
 }
 
 ```
+
+### Analysis of Ford-Fulkerson algorithm
+
+### Better aproach with Edmonds-Karp algorithm
