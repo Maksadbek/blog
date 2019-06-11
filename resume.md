@@ -55,7 +55,7 @@ permalink: /resume/
             <h4 style="margin-bottom: 5px">Newmax Technologies, Tashkent, Uzbekistan</h4>
             <span class="post-meta">Software Engineer</span>
             <ul class="">
-                <li>Develop​ment of ​scalable service that can handle the level of traffic that was problematic at that time to handle with PHP code(~2K​ ​qps :smiley:)</li>
+                <li>Develop​ment of ​scalable service that can handle the level of traffic that was problematic at that time to handle with PHP code</li>
                 <li>Backend Development (​Go,​ JavaScript with React/Flux,​ ​MySQL and ​Redis)</li>
             </ul>
         </td>
