@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Contraction Hierarchies - Maksadbek</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="/contraction-hierarchies.html">
+
+        <meta name="author" content="maksadbek" />
+        <meta name="description" content="Genius algorithm to find shortest paths in a large graph. The algorithms consists from 2 stages: 1. Preporessing stage that create indices. 2. Query stage that uses indices to find a shortest path. Preprocess Develop an alternate Dijkstra&#39;s algorithm that can ignore some node \(v\) and stops when given max …" />
+
+        <meta property="og:site_name" content="Maksadbek" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Contraction Hierarchies"/>
+        <meta property="og:url" content="/contraction-hierarchies.html"/>
+        <meta property="og:description" content="Genius algorithm to find shortest paths in a large graph. The algorithms consists from 2 stages: 1. Preporessing stage that create indices. 2. Query stage that uses indices to find a shortest path. Preprocess Develop an alternate Dijkstra&#39;s algorithm that can ignore some node \(v\) and stops when given max …"/>
+        <meta property="article:published_time" content="2019-02-27" />
+            <meta property="article:section" content="misc" />
+            <meta property="article:author" content="maksadbek" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments/emacs.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+        <link href="/static/css/custom.css" rel="stylesheet">
+
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maksadbek ATOM Feed"/>
+
+        <link href="/feeds/misc.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maksadbek misc ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand">
+Maksadbek            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="/pages/resume.html">
+                             Resume
+                          </a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+
+              <li><a href="/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>Contraction Hierarchies</h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2019-02-27T16:46:40+03:00"> Wed 27 February 2019</time>
+    </span>
+
+
+
+
+
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>Genius algorithm to find shortest paths in a large graph. The algorithms
+consists from 2 stages: 1. Preporessing stage that create indices. 2.
+Query stage that uses indices to find a shortest path.</p>
+<div class="section" id="preprocess">
+<h2>Preprocess</h2>
+<div class="section" id="develop-an-alternate-dijkstra-s-algorithm-that-can-ignore-some-node-v-and-stops-when-given-max-distance-is-reached">
+<h3>Develop an alternate Dijkstra's algorithm that can ignore some node <span class="math">\(v\)</span> and stops when given max distance is reached.</h3>
+</div>
+<div class="section" id="we-use-this-algorithm-to-find-shortcuts">
+<h3>We use this algorithm to find shortcuts</h3>
+<ol class="arabic simple">
+<li>Start from choosing a random node.</li>
+<li>Calculate the max distance between incident nodes:</li>
+</ol>
+<ul class="simple">
+<li>When contracting node <span class="math">\(v\)</span>, we need to insert the shortcut
+<span class="math">\(u \to w\)</span>, if and only if <span class="math">\(u \to v \in E\)</span> and
+<span class="math">\(v \to w \in E\)</span> and <span class="math">\(u \to v \to w\)</span> is the only shortest
+path from <span class="math">\(u\)</span> to <span class="math">\(w\)</span>.</li>
+<li>When contracting node <span class="math">\(v\)</span>, for any pair of edges <span class="math">\((u, v)\)</span>
+and <span class="math">\((v, w)\)</span> we want to check whether there is a witness path
+from u to <span class="math">\(w\)</span> bypassing <span class="math">\(v\)</span> with length at most
+<span class="math">\(l(u,v)+l(v,w)\)</span> — then there is no need to add a shortcut from
+<span class="math">\(u\)</span> to <span class="math">\(w\)</span>.</li>
+</ul>
+<ol class="arabic simple" start="3">
+<li>Make 1 hop backward search for each predecessor of target node v</li>
+<li>Last node does not need to be contracted</li>
+<li>Compute the importance for the top node on the priority queue, then
+compare it with the other top node, if its importance is less, then
+put the node back into the queue.</li>
+<li>Already contracted nodes can be distinguished by their ranks: already
+contracted nodes have lower rank than currently contracting node. So,
+instead of having an array for contracted nodes, use the rank array.
+Motherfucker!</li>
+<li>Stop limits can be various:</li>
+</ol>
+<ul class="simple">
+<li>max_incoming + max_outgoing</li>
+<li>cost(v, x) + max_outgoing - min_outgoing</li>
+<li>cost(v, x) + max_outgoing - min(x, w)</li>
+</ul>
+</div>
+<div class="section" id="node-ordering">
+<h3>Node ordering</h3>
+<p>It is important because query time and preprocessing heavily depends on
+it. Nodes must be measure my some importance criterias and the least
+important nodes must be contracted first. Further, several importance
+criterias will be covered:</p>
+<div class="section" id="edge-difference">
+<h4>Edge difference</h4>
+<ul class="simple">
+<li>Want to minimize the number of edges in the augmented graph</li>
+<li>Number of shortcuts have to be added if node v is contracted s(v),
+incoming degree in(v) and outgoing degree out(v)</li>
+<li>Lets suppose that there are 3 incoding endges and 5 outgoing edges,
+what is the worst case count of shortcuts if we contract this node ?</li>
+<li>It is in(v) * out(v)</li>
+<li>Edge difference ed = s(v) - in(v) - out(v)</li>
+<li>Number of edges increases by ed after contracting v</li>
+<li>Contract node with small edge difference</li>
+</ul>
+</div>
+<div class="section" id="number-of-contracted-neighbors">
+<h4>Number of contracted neighbors</h4>
+<ul class="simple">
+<li>Want to spread contracted nodes across the graph</li>
+<li>Contract a node with small number of already contracted neighbors
+cn(v)</li>
+</ul>
+</div>
+<div class="section" id="shortcut-cover">
+<h4>Shortcut Cover</h4>
+<ul class="simple">
+<li>Want to contract important nodes late</li>
+<li>Shortcut cover sc(v) - the number of neighbors w of v such that we
+have to shortcut to or from w after contracting v.</li>
+<li>If shortcut cover is big, many nodes depend on v</li>
+<li>Contract a node with small sc(v)</li>
+</ul>
+</div>
+<div class="section" id="node-level">
+<h4>Node level (?)</h4>
+<ul class="simple">
+<li>Node level L(v) is an upper bound on the number of edges in the
+shortest path from any s to v in the augmented graph</li>
+<li>Initially, L(v) = 0</li>
+<li>After contracting node v, for neighbors u of v do L(u) = max(L(u),
+L(v) + 1)</li>
+<li>Contract a node with small L(v)</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="query">
+<h2>Query</h2>
+<p>TBA</p>
+</div>
+<div class="section" id="code">
+<h2>Code</h2>
+<pre class="code python literal-block">
+<span class="kn">import</span> <span class="nn">queue</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="n">INF</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
+
+
+<span class="k">class</span> <span class="nc">ContractionHierarchies</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">g_r</span><span class="p">,</span> <span class="n">costs</span><span class="p">,</span> <span class="n">costs_r</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">m</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g_r</span> <span class="o">=</span> <span class="n">g_r</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">costs</span> <span class="o">=</span> <span class="n">costs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">costs_r</span> <span class="o">=</span> <span class="n">costs_r</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_level</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_outgoing</span> <span class="o">=</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">costs</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_outgoing</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">else</span> <span class="n">INF</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">costs_r</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="p">[</span><span class="n">INF</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+
+    <span class="k">def</span> <span class="nf">witness_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">max_dist</span><span class="p">):</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">dist</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">heap</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">PriorityQueue</span><span class="p">()</span>
+        <span class="n">heap</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
+        <span class="n">max_hops</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">hops</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">heap</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span> <span class="ow">and</span> <span class="n">hops</span> <span class="o">&lt;</span> <span class="n">max_hops</span><span class="p">:</span>
+            <span class="n">hops</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">d</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">heap</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">max_dist</span> <span class="o">&lt;=</span> <span class="n">d</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">[</span><span class="n">u</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="ow">or</span> <span class="n">x</span> <span class="o">==</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="n">d</span> <span class="o">+</span> <span class="n">w</span> <span class="o">&lt;</span> <span class="n">dist</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">INF</span><span class="p">):</span>
+                    <span class="n">dist</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="n">w</span>
+                    <span class="n">heap</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">dist</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">x</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">dist</span>
+
+    <span class="k">def</span> <span class="nf">contract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">adding_shortcuts</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">shortcuts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">shortcuts_cover</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">shortcut_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_outgoing</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_outgoing</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">u_d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_r</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+                <span class="k">continue</span>
+
+            <span class="n">limit</span> <span class="o">=</span> <span class="n">u_d</span> <span class="o">+</span> <span class="n">delta</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">witness_search</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">add_shortcut</span> <span class="o">=</span> <span class="bp">True</span>
+
+                <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_r</span><span class="p">[</span><span class="n">w</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="ow">or</span> <span class="n">x</span> <span class="o">==</span> <span class="n">v</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
+                    <span class="n">cost</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">INF</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">costs_r</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">costs</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">w</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">cost</span> <span class="o">+</span> <span class="n">d</span><span class="p">:</span>
+                        <span class="n">add_shortcut</span> <span class="o">=</span> <span class="bp">False</span>
+                        <span class="k">break</span>
+
+                <span class="k">if</span> <span class="n">add_shortcut</span><span class="p">:</span>
+                    <span class="n">shortcut_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">shortcuts_cover</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+                    <span class="n">shortcuts_cover</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">adding_shortcuts</span><span class="p">:</span>
+                        <span class="n">shortcuts</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">costs_r</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">costs</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">w</span><span class="p">]))</span>
+
+        <span class="n">edge_difference</span> <span class="o">=</span> <span class="n">shortcut_count</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">[</span><span class="n">v</span><span class="p">])</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g_r</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">edge_difference</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_node_level</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">shortcuts_cover</span><span class="p">),</span> <span class="n">shortcuts</span>
+
+    <span class="k">def</span> <span class="nf">compute_node_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">level</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">!=</span> <span class="n">INF</span><span class="p">:</span>
+                <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">level</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_level</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_r</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">!=</span> <span class="n">INF</span><span class="p">:</span>
+                <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">level</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_level</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">n</span> <span class="o">+</span> <span class="n">level</span><span class="o">/</span><span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">update_node_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node_level</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_level</span><span class="p">[</span><span class="n">u</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_level</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_r</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node_level</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_level</span><span class="p">[</span><span class="n">u</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_level</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">add_shortcuts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shortcuts</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">shortcut</span> <span class="ow">in</span> <span class="n">shortcuts</span><span class="p">:</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">shortcut</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_outgoing</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">w</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_outgoing</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span>
+
+            <span class="k">if</span> <span class="n">w</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_outgoing</span><span class="p">[</span><span class="n">u</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_outgoing</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">g_r</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">costs</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">costs_r</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span>
+
+    <span class="k">def</span> <span class="nf">remove_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">j</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">costs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">INF</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">k</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="k">continue</span>
+                <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">j</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g_r</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">g_r</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">costs_r</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">g_r</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">INF</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_r</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">k</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="k">continue</span>
+                <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">rank_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pq</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">PriorityQueue</span><span class="p">()</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;n:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">c</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">pq</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">c</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+
+        <span class="k">while</span> <span class="n">pq</span><span class="o">.</span><span class="n">qsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">_</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">ved</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+            <span class="n">ed</span><span class="p">,</span> <span class="n">shortcuts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contract</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">adding_shortcuts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">ed</span> <span class="o">&lt;=</span> <span class="n">ved</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_shortcuts</span><span class="p">(</span><span class="n">shortcuts</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="n">rank_count</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_node_level</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pq</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">ed</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span>
+
+            <span class="n">rank_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">pq</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">ved</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;counter:&quot;</span><span class="p">,</span> <span class="n">counter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_edges</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="n">estimate</span> <span class="o">=</span> <span class="n">INF</span>
+
+        <span class="n">pq</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">PriorityQueue</span><span class="p">()</span>
+        <span class="n">pq_r</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">PriorityQueue</span><span class="p">()</span>
+
+        <span class="n">pq</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
+        <span class="n">pq_r</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+
+        <span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="n">INF</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+        <span class="n">dist_r</span> <span class="o">=</span> <span class="p">[</span><span class="n">INF</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+        <span class="n">dist</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">dist_r</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">visited</span> <span class="o">=</span> <span class="p">[</span><span class="n">INF</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+        <span class="n">visited_r</span> <span class="o">=</span> <span class="p">[</span><span class="n">INF</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">pq</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">pq_r</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pq</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">dist</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">estimate</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">[</span><span class="n">u</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">dist</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">dist</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span><span class="p">:</span>
+                            <span class="n">dist</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span>
+                            <span class="n">pq</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">dist</span><span class="p">[</span><span class="n">v</span><span class="p">],</span> <span class="n">v</span><span class="p">))</span>
+
+                <span class="n">visited</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">if</span> <span class="n">visited_r</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="ow">and</span> <span class="n">dist</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="n">dist_r</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">estimate</span><span class="p">:</span>
+                    <span class="n">estimate</span> <span class="o">=</span> <span class="n">dist</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="n">dist_r</span><span class="p">[</span><span class="n">u</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pq_r</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">pq_r</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">dist_r</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">estimate</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_r</span><span class="p">[</span><span class="n">u</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">dist_r</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">dist_r</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span><span class="p">:</span>
+                            <span class="n">dist_r</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist_r</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span>
+                            <span class="n">pq_r</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">dist</span><span class="p">[</span><span class="n">v</span><span class="p">],</span> <span class="n">v</span><span class="p">))</span>
+
+                <span class="n">visited_r</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">if</span> <span class="n">visited</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="ow">and</span> <span class="n">dist</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="n">dist_r</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">estimate</span><span class="p">:</span>
+                    <span class="n">estimate</span> <span class="o">=</span> <span class="n">dist</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="n">dist_r</span><span class="p">[</span><span class="n">u</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">estimate</span> <span class="o">==</span> <span class="n">INF</span> <span class="k">else</span> <span class="n">estimate</span>
+
+
+<span class="k">def</span> <span class="nf">readl</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">init</span><span class="p">():</span>
+    <span class="n">n</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">readl</span><span class="p">()</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="n">g_r</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+
+    <span class="n">costs</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="n">costs_r</span> <span class="o">=</span> <span class="p">[[</span><span class="n">INF</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">readl</span><span class="p">()</span>
+        <span class="n">costs</span><span class="p">[</span><span class="n">u</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">v</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="n">costs_r</span><span class="p">[</span><span class="n">v</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">u</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span>
+
+        <span class="n">g</span><span class="p">[</span><span class="n">u</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">v</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span>
+        <span class="n">g_r</span><span class="p">[</span><span class="n">v</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">ContractionHierarchies</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">g_r</span><span class="p">,</span> <span class="n">costs</span><span class="p">,</span> <span class="n">costs_r</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
+    <span class="n">ch</span> <span class="o">=</span> <span class="n">init</span><span class="p">()</span>
+
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">ch</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Ready&quot;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;preprocessing took </span><span class="si">%s</span><span class="s2"> seconds&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="n">t</span><span class="p">,</span> <span class="o">=</span> <span class="n">readl</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">readl</span><span class="p">()</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;querying took </span><span class="si">%s</span><span class="s2"> seconds&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+</pre>
+</div>
+<script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
+
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2019 maksadbek                <p><small>  <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.en"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by/4.0/80x15.png" /></a>
+    Content
+  licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.en">Creative Commons Attribution 4.0 International License</a>, except where indicated otherwise.
+</small></p>
+         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="/theme/js/respond.min.js"></script>
+
+
+
+
+</body>
+</html>

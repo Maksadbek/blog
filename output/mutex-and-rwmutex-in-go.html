@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Mutex and RWMutex in Go - Maksadbek</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="/mutex-and-rwmutex-in-go.html">
+
+        <meta name="author" content="maksadbek" />
+        <meta name="description" content="Go has builtin facilities for writing concurrent programs. The concurrency pattern is implemented with CSP(Communication Sequential Processes) model that was introduced by Tony Hoare in 1978. The concurrent code in Go is written using goroutines and channels. Goroutines are functions that run simultaneously and usually use channels to synchronize …" />
+
+        <meta property="og:site_name" content="Maksadbek" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Mutex and RWMutex in Go"/>
+        <meta property="og:url" content="/mutex-and-rwmutex-in-go.html"/>
+        <meta property="og:description" content="Go has builtin facilities for writing concurrent programs. The concurrency pattern is implemented with CSP(Communication Sequential Processes) model that was introduced by Tony Hoare in 1978. The concurrent code in Go is written using goroutines and channels. Goroutines are functions that run simultaneously and usually use channels to synchronize …"/>
+        <meta property="article:published_time" content="2017-11-26" />
+            <meta property="article:section" content="misc" />
+            <meta property="article:author" content="maksadbek" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments/emacs.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+        <link href="/static/css/custom.css" rel="stylesheet">
+
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maksadbek ATOM Feed"/>
+
+        <link href="/feeds/misc.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Maksadbek misc ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand">
+Maksadbek            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="/pages/resume.html">
+                             Resume
+                          </a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+
+              <li><a href="/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>Mutex and RWMutex in Go</h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2017-11-26T20:46:40+05:00"> Sun 26 November 2017</time>
+    </span>
+
+
+
+
+
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>Go has builtin facilities for writing concurrent programs. The
+concurrency pattern is implemented with CSP(Communication Sequential
+Processes) model that was introduced by Tony Hoare in 1978. The
+concurrent code in Go is written using goroutines and channels.
+Goroutines are functions that run simultaneously and usually use
+channels to synchronize with each other. To run a function as a
+goroutine, it must be invocated with <tt class="docutils literal">go</tt> keyword: <tt class="docutils literal">go listen()</tt></p>
+<p>Goroutines can have a common shared state and communication to access
+that state can be done via channels or via just accessing that shared
+state. The popular Go proverb is:</p>
+<blockquote>
+Don't communicate by sharing memory,
+share memory by communicating.</blockquote>
+<p>That is, communication is done better and clearer when you share the
+state via channels through goroutines than directly accessing the shared
+state.</p>
+<p>This blog post does cover the channel communication. It explains how to
+safely access the shared state using mutual exclusions in Go.</p>
+<p>Mutexes are used to protect the shared state from mutation by multiple
+goroutines at the same time. The protection is needed to avoid the
+undefined behavior of the program. Go memory model does not guarantee
+the correct work if there are data races. That is, one goroutine writes
+to a shared variable neither before nor after another goroutine's
+write/read happened. They are doing it simultaneously. Fortunately, Go
+runtime has a race detector, it is enabled with passing <tt class="docutils literal"><span class="pre">-race</span></tt> flag
+to the compiler:</p>
+<pre class="code Go literal-block">
+<span class="k">go</span> <span class="nx">build</span> <span class="o">-</span><span class="nx">race</span>
+<span class="k">go</span> <span class="nx">test</span> <span class="p">.</span> <span class="o">-</span><span class="nx">race</span>
+</pre>
+<p><a class="reference external" href="https://golang.org/doc/articles/race_detector.html">Read more about race
+detector</a></p>
+<p>The <tt class="docutils literal">sync</tt> package implements two types of mutexes:</p>
+<ul class="simple">
+<li><tt class="docutils literal">Mutex</tt></li>
+<li><tt class="docutils literal">RWmutex</tt></li>
+</ul>
+<div class="section" id="mutex">
+<h2>Mutex</h2>
+<p>The <tt class="docutils literal">sync.Mutex</tt> implements <tt class="docutils literal">sync.Locker</tt> interface and has two
+methods:</p>
+<ul class="simple">
+<li><tt class="docutils literal">Lock()</tt></li>
+<li><tt class="docutils literal">Unlock()</tt></li>
+</ul>
+<p><tt class="docutils literal">Lock()</tt> acquires the lock and if another goroutine will call
+<tt class="docutils literal">Lock()</tt> -- it will be blocked until the <tt class="docutils literal">Unlock()</tt> will not release
+the lock and makes it available for other goroutines. So, the lock must
+be held while the shared state is being mutated. For example we a map
+and two functions, one mutates it, another one reads from it:</p>
+<pre class="code Go literal-block">
+<span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kd">var</span> <span class="nx">m</span> <span class="p">=</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">int</span><span class="p">{}</span>
+
+<span class="kd">func</span> <span class="nx">mutate</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">val</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">m</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="p">=</span> <span class="nx">v</span>
+    <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">state</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">bool</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">val</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">m</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nx">val</span><span class="p">,</span> <span class="nx">ok</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">mutate</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="nx">v</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">state</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span>
+    <span class="nb">println</span><span class="p">(</span><span class="nx">v</span><span class="p">,</span> <span class="nx">ok</span><span class="p">)</span>
+<span class="p">}</span>
+</pre>
+<p>It is ok since reading/writing to the map is not happening at the same
+time. There is no concurrency in the code. Go memory model guarantees
+the order of execution of instructions that are written in the code:
+state starts after mutating returns.</p>
+<p>But if we want to execute <tt class="docutils literal">mutate</tt> concurrently, with a <tt class="docutils literal">go</tt>
+keyword, race detector will warn about the possible data race. Multiple
+goroutines must synchronize and change the shared variable atomically to
+establish <a class="reference external" href="https://golang.org/ref/mem#tmp_2">happens-before
+conditions</a>.</p>
+<p>We have two goroutines that execute mutate and state functions
+concurrently. There can be a momentum when one goroutine reads state and
+another one changes it <strong>at the same time</strong> and this will be a data race
+that will bring to the memory corruption. To avoid this, goroutines must
+use synchronization primitives while accessing the shared stated. In
+other words, concurrent operations must be done atomically(consequently)
+but not at same time. There we start protecting memory with the mutex
+and our initial version of the code has changed:</p>
+<pre class="code Go literal-block">
+<span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&quot;sync&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">var</span> <span class="nx">m</span> <span class="p">=</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">int</span><span class="p">{}</span>
+<span class="kd">var</span> <span class="nx">mutex</span> <span class="p">=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span><span class="p">)</span>
+
+<span class="kd">func</span> <span class="nx">mutate</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">val</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">mutex</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+    <span class="nx">m</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="p">=</span> <span class="nx">val</span>
+    <span class="nx">mutex</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+
+    <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">state</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">bool</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">val</span> <span class="kt">int</span>
+    <span class="kd">var</span> <span class="nx">ok</span> <span class="kt">bool</span>
+
+    <span class="nx">mutex</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+    <span class="nx">val</span><span class="p">,</span> <span class="nx">ok</span> <span class="p">=</span> <span class="nx">m</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+    <span class="nx">mutex</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="nx">val</span><span class="p">,</span> <span class="nx">ok</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">go</span> <span class="nx">mutate</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span>
+        <span class="nx">val</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">state</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span>
+        <span class="nb">println</span><span class="p">(</span><span class="nx">val</span><span class="p">,</span> <span class="nx">ok</span><span class="p">)</span>
+<span class="p">}</span>
+</pre>
+<p>This makes concurrent read/write operations safely and there will not be
+data races. The map's state is read and written atomically. If the
+goroutine #1 is reading the state it acquires the lock. Then, when
+goroutine #2 want to change/read the state at the same time, it has to
+wait until the lock will not be released by the goroutines #1. That's ok
+for now and we are satisfied with that.</p>
+<p>But, what if we change the state once in an hour and read every second.
+Reading the state concurrently does mutate the shared state and it is
+race free. The idea is to let multiple goroutines to hold the lock for
+reading, but only one goroutine can hold the lock for writing. There
+comes a <tt class="docutils literal">RWMutex</tt>!</p>
+</div>
+<div class="section" id="rwmutex">
+<h2>RWMutex</h2>
+<p><tt class="docutils literal">RWMutex</tt> or read-write mutex allows multiple goroutines to hold the
+read lock but only one goroutine can hold the write lock:</p>
+<blockquote>
+A RWMutex is a reader/writer mutual exclusion lock. The lock can be
+held by an arbitrary number of readers or a single writer. The zero
+value for an RWMutex is an unlocked mutex.</blockquote>
+<p><tt class="docutils literal">RWMutex</tt> has added a couple more methods to acquire and release the
+lock only for reading:</p>
+<ul class="simple">
+<li><tt class="docutils literal">RLock()</tt> acquires the lock for reading, and it can be held by
+multiple goroutines.</li>
+<li><tt class="docutils literal">RUnlock()</tt> releases the single RLock().</li>
+</ul>
+<p><tt class="docutils literal">Lock()</tt> locks the state for writing, and if the lock is held by
+goroutines for reading, it waits until the read lock is released and
+does not let other goroutines to acquire the lock:</p>
+<blockquote>
+Lock locks rw for writing. If the lock is already locked for reading
+or writing, Lock blocks until the lock is available. If a goroutine
+holds a RWMutex for reading and another goroutine might call Lock,
+no goroutine should expect to be able to acquire a read lock until
+the initial read lock is released. In particular, this prohibits
+recursive read locking. This is to ensure that the lock eventually
+becomes available; a blocked Lock call excludes new readers from
+acquiring the lock.</blockquote>
+<p>The second version of the code that used Mutex will be changed:</p>
+<pre class="code Go literal-block">
+<span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&quot;sync&quot;</span>
+    <span class="s">&quot;time&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">var</span> <span class="nx">m</span> <span class="p">=</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">int</span><span class="p">{}</span>
+<span class="kd">var</span> <span class="nx">mutex</span> <span class="p">=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">sync</span><span class="p">.</span><span class="nx">RWMutex</span><span class="p">)</span>
+
+<span class="kd">func</span> <span class="nx">mutate</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">val</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">mutex</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+    <span class="nx">m</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="p">=</span> <span class="nx">val</span>
+    <span class="nx">mutex</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+
+    <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">state</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">bool</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">mutex</span><span class="p">.</span><span class="nx">RLock</span><span class="p">()</span>
+    <span class="nx">val</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">m</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+    <span class="nx">mutex</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="nx">val</span><span class="p">,</span> <span class="nx">ok</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">readTicker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nx">NewTicker</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+
+    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="nx">_</span> <span class="p">=</span> <span class="k">range</span> <span class="nx">readTicker</span><span class="p">.</span><span class="nx">C</span> <span class="p">{</span>
+            <span class="nx">state</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}()</span>
+
+    <span class="nx">writeTicker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nx">NewTicker</span><span class="p">(</span><span class="mi">500</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="nx">_</span> <span class="p">=</span> <span class="k">range</span> <span class="nx">writeTicker</span><span class="p">.</span><span class="nx">C</span> <span class="p">{</span>
+            <span class="nx">mutate</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}()</span>
+
+    <span class="nx">time</span><span class="p">.</span><span class="nx">Sleep</span><span class="p">(</span><span class="mi">1600</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+    <span class="nx">writeTicker</span><span class="p">.</span><span class="nx">Stop</span><span class="p">()</span>
+    <span class="nx">readTicker</span><span class="p">.</span><span class="nx">Stop</span><span class="p">()</span>
+<span class="p">}</span>
+</pre>
+</div>
+
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
+
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2019 maksadbek                <p><small>  <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.en"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by/4.0/80x15.png" /></a>
+    Content
+  licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.en">Creative Commons Attribution 4.0 International License</a>, except where indicated otherwise.
+</small></p>
+         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="/theme/js/respond.min.js"></script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if articles %}
+        {% set article = articles[0] %}
+        <article>
+        <header class="page-header">
+                <h2>{{ articles[0].title }}</h2>
+        </header>
+
+        <div class="entry-content">
+                {% if DISPLAY_ARTICLE_INFO_ON_INDEX %}
+                        <div class="panel">
+                                <div class="panel-body">
+                                        {% include "includes/article_info.html" %}
+                                </div>
+                        </div>
+                {% endif %}
+                {{ article.content }}
+        </div>
+        </article>
+
+            <hr/>
+    {% endif %}
+
+    {% include 'includes/pagination.html' %}
+{% endblock content %}
