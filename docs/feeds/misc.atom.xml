@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Maksadbek - misc</title><link href="/" rel="alternate"></link><link href="/feeds/misc.atom.xml" rel="self"></link><id>/</id><updated>2019-04-23T16:46:40+03:00</updated><entry><title>Maximum-flow problem</title><link href="/maximum-flow-problem.html" rel="alternate"></link><published>2019-04-23T16:46:40+03:00</published><updated>2019-04-23T16:46:40+03:00</updated><author><name>maksadbek</name></author><id>tag:None,2019-04-23:/maximum-flow-problem.html</id><summary type="html">&lt;div class="section" id="flow-and-flow-networks"&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Maksadbek - misc</title><link href="maksadbek.com/" rel="alternate"></link><link href="maksadbek.com/feeds/misc.atom.xml" rel="self"></link><id>maksadbek.com/</id><updated>2019-04-23T16:46:40+03:00</updated><entry><title>Maximum-flow problem</title><link href="maksadbek.com/maximum-flow-problem.html" rel="alternate"></link><published>2019-04-23T16:46:40+03:00</published><updated>2019-04-23T16:46:40+03:00</updated><author><name>maksadbek</name></author><id>tag:None,2019-04-23:maksadbek.com/maximum-flow-problem.html</id><summary type="html">&lt;div class="section" id="flow-and-flow-networks"&gt;
 &lt;h2&gt;Flow and flow networks&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;Flow network&lt;/strong&gt; is a graph &lt;span class="math"&gt;\(G = (V, E)\)&lt;/span&gt; with the following
 features: * Each edge has a nonnegative capacity - &lt;span class="math"&gt;\(c_e\)&lt;/span&gt; * The
@@ -343,7 +343,7 @@ network.&lt;/p&gt;
     (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
-&lt;/script&gt;</content></entry><entry><title>Contraction Hierarchies</title><link href="/contraction-hierarchies.html" rel="alternate"></link><published>2019-02-27T16:46:40+03:00</published><updated>2019-02-27T16:46:40+03:00</updated><author><name>maksadbek</name></author><id>tag:None,2019-02-27:/contraction-hierarchies.html</id><summary type="html">&lt;p&gt;Genius algorithm to find shortest paths in a large graph. The algorithms
+&lt;/script&gt;</content></entry><entry><title>Contraction Hierarchies</title><link href="maksadbek.com/contraction-hierarchies.html" rel="alternate"></link><published>2019-02-27T16:46:40+03:00</published><updated>2019-02-27T16:46:40+03:00</updated><author><name>maksadbek</name></author><id>tag:None,2019-02-27:maksadbek.com/contraction-hierarchies.html</id><summary type="html">&lt;p&gt;Genius algorithm to find shortest paths in a large graph. The algorithms
 consists from 2 stages: 1. Preporessing stage that create indices. 2.
 Query stage that uses indices to find a shortest path.&lt;/p&gt;
 &lt;div class="section" id="preprocess"&gt;
@@ -775,7 +775,7 @@ L(v) + 1)&lt;/li&gt;
     (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
-&lt;/script&gt;</content></entry><entry><title>Mutex and RWMutex in Go</title><link href="/mutex-and-rwmutex-in-go.html" rel="alternate"></link><published>2017-11-26T20:46:40+05:00</published><updated>2017-11-26T20:46:40+05:00</updated><author><name>maksadbek</name></author><id>tag:None,2017-11-26:/mutex-and-rwmutex-in-go.html</id><summary type="html">&lt;p&gt;Go has builtin facilities for writing concurrent programs. The
+&lt;/script&gt;</content></entry><entry><title>Mutex and RWMutex in Go</title><link href="maksadbek.com/mutex-and-rwmutex-in-go.html" rel="alternate"></link><published>2017-11-26T20:46:40+05:00</published><updated>2017-11-26T20:46:40+05:00</updated><author><name>maksadbek</name></author><id>tag:None,2017-11-26:maksadbek.com/mutex-and-rwmutex-in-go.html</id><summary type="html">&lt;p&gt;Go has builtin facilities for writing concurrent programs. The
 concurrency pattern is implemented with CSP(Communication Sequential
 Processes) model that was introduced by Tony Hoare in 1978. The
 concurrent code in Go is written using goroutines and channels.
