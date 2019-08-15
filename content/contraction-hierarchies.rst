@@ -5,45 +5,39 @@ Contraction Hierarchies
 
 
 Genius algorithm to find shortest paths in a large graph. The algorithms
-consists from 2 stages: 1. Preporessing stage that create indices. 2.
-Query stage that uses indices to find a shortest path.
+consists from 2 stages:
+
+1) Preporessing stage that create indices
+2) Query stage that uses indices to find a shortest path.
 
 Preprocess
 ----------
 
-Develop an alternate Dijkstra's algorithm that can ignore some node :math:`v` and stops when given max distance is reached.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The goal is to develop an alternate Dijkstra's algorithm that can ignore some node :math:`v` and stops when given max distance is reached.
 
 We use this algorithm to find shortcuts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. Start from choosing a random node.
-2. Calculate the max distance between incident nodes:
+1) Start from choosing a random node.
+2) Calculate the max distance between incident nodes:
 
--  When contracting node :math:`v`, we need to insert the shortcut
-   :math:`u \to w`, if and only if :math:`u \to v \in E` and
-   :math:`v \to w \in E` and :math:`u \to v \to w` is the only shortest
-   path from :math:`u` to :math:`w`.
--  When contracting node :math:`v`, for any pair of edges :math:`(u, v)`
-   and :math:`(v, w)` we want to check whether there is a witness path
-   from u to :math:`w` bypassing :math:`v` with length at most
-   :math:`l(u,v)+l(v,w)` — then there is no need to add a shortcut from
-   :math:`u` to :math:`w`.
+   - When contracting node :math:`v`, we need to insert the shortcut :math:`u \to w`, if and only if :math:`u \to v \in E` and :math:`v \to w \in E` and :math:`u \to v \to w` is the only shortest path from :math:`u` to :math:`w`.
+   - When contracting node :math:`v`, for any pair of edges :math:`(u, v)` and :math:`(v, w)` we want to check whether there is a witness path from u to :math:`w` bypassing :math:`v` with length at most :math:`l(u,v)+l(v,w)` — then there is no need to add a shortcut from :math:`u` to :math:`w`.
 
-3. Make 1 hop backward search for each predecessor of target node v
-4. Last node does not need to be contracted
-5. Compute the importance for the top node on the priority queue, then
+3) Make 1 hop backward search for each predecessor of target node v
+4) Last node does not need to be contracted
+5) Compute the importance for the top node on the priority queue, then
    compare it with the other top node, if its importance is less, then
    put the node back into the queue.
-6. Already contracted nodes can be distinguished by their ranks: already
+6) Already contracted nodes can be distinguished by their ranks: already
    contracted nodes have lower rank than currently contracting node. So,
    instead of having an array for contracted nodes, use the rank array.
    Motherfucker!
-7. Stop limits can be various:
+7) Stop limits can be various:
 
--  max\_incoming + max\_outgoing
--  cost(v, x) + max\_outgoing - min\_outgoing
--  cost(v, x) + max\_outgoing - min(x, w)
+   - max\_incoming + max\_outgoing
+   - cost(v, x) + max\_outgoing - min\_outgoing
+   - cost(v, x) + max\_outgoing - min(x, w)
 
 Node ordering
 ~~~~~~~~~~~~~

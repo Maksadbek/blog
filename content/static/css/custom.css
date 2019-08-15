@@ -10,7 +10,7 @@
 }
 
 pre {
-    font-family: Consolas, monaco, monospace;
+    font-family: 'Fira Code', Menlo, Consolas, monaco, monospace;
     overflow: auto;
     word-wrap: normal;
     white-space: pre;

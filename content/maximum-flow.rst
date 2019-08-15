@@ -12,11 +12,13 @@ Flow and flow networks
 ~~~~~~~~~~~~~~~~~~~~~~
 
 **Flow network** is a graph :math:`G = (V, E)` with the following
-features: \* Each edge has a nonnegative capacity - :math:`c_e` \* The
-is a single node considered as *source* of the flow \* The is a single
-node considered as *sink* that absorbs the flow. \* No edge enters the
-*source* and no edges leaves *sink* \* There is at least one edge
-incident to each node.
+features:
+
+* Each edge has a nonnegative capacity - :math:`c_e`
+* There is a single node considered as *source* of the flow
+* The is a single node considered as *sink* that absorbs the flow.
+* No edge enters the *source* and no edges leaves *sink*
+* There is at least one edge incident to each node.
 
 The nodes other than *source* and *sink* are called *internal* nodes.
 
@@ -24,7 +26,6 @@ The nodes other than *source* and *sink* are called *internal* nodes.
 nonnegative real number: :math:`f: e \to r`; the value of :math:`f(e)`
 represents the amount of flow carried by edge :math:`e`. a flow
 :math:`f` must satisfy the following two properties:
-
 
 
 The flow from :math:`u` to :math:`v` is a nonnegative and defined as
@@ -56,6 +57,7 @@ as much as possible:
         end
         
         return flow
+    end
 
 Residual networks
 ~~~~~~~~~~~~~~~~~
@@ -112,6 +114,8 @@ Let :math:`G_f` be the residual network of :math:`G` induced by
 :math:`f \uparrow f'` defined in equation (26.4) is a flow in :math:`G`
 with value
 :math:`\vert f \uparrow f' \vert = \vert f \vert + \vert f \vert + \vert f' \vert`.
+
+This lemma is true, don't ask me why. Look at CLRS for the proof.
 
 Cuts of flow networks
 ~~~~~~~~~~~~~~~~~~~~~
@@ -197,7 +201,7 @@ The implementation of this algorithm is written in C++
             }
 
             void add_flow(size_t id, int flow) {
-                /*
+               /*
                 * To get a backward edge for a true forward edge (i.e id is even), we
                 * should get id + 1 due to the described above scheme. On the other hand,
                 * when we have to get a "backward" edge for a backward edge (i.e. get a
