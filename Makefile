@@ -76,4 +76,4 @@ publish:
 gh_deploy:
 	./ghp_import.py -f -p -b $(STATIC_BRANCH) -c maksadbek.com $(OUTPUTDIR)
 
-.PHONY: html help clean regenerate serve serve-global devserver publish 
+.PHONY: html help clean regenerate serve serve-global devserver publish gh_deploy
